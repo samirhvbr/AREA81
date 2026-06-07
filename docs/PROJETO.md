@@ -1,0 +1,1 @@
+- vamos criar um blog com o intuito de usarmos o material criado da IA vindo de API ia.blue3.com.br, a ideia é ela ler noticias dentro de um contexto e publicarmos aqui
