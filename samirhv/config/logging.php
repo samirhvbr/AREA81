@@ -127,6 +127,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Canal dedicado para eventos da newsletter (inscrições, confirmações, erros de envio)
+        'newsletter' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/newsletter.log'),
+            'level'  => 'debug',
+            'days'   => 30,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];
