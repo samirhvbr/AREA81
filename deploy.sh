@@ -4,7 +4,7 @@
 set -e  # para imediatamente se qualquer comando falhar
 
 DIR="/srv/www/area81"
-APP="$DIR/samirhv"
+APP="$DIR/"
 
 echo "==> Iniciando deploy..."
 
@@ -29,6 +29,9 @@ php artisan migrate --force
 echo "==> Reconstruindo cache de produção..."
 php artisan optimize:clear
 php artisan optimize
+php artisan config:clear
+php artisan route:cache
+php artisan view:cache
 
 echo "==> Desativando modo de manutenção..."
 php artisan up
