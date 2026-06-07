@@ -36,6 +36,8 @@ class BlogController extends Controller
             ['slug' => 'dev',        'name' => 'Desenvolvimento'],
             ['slug' => 'linux',      'name' => 'Linux'],
             ['slug' => 'reflexoes',  'name' => 'Reflexões'],
+            ['slug' => 'politica',   'name' => 'Política'],
+            ['slug' => 'esporte',    'name' => 'Esporte'],
             ['slug' => 'geral',      'name' => 'Geral'],
         ];
     }
@@ -66,6 +68,18 @@ class BlogController extends Controller
                 'name'        => 'Reflexões',
                 'icon'        => 'fa-solid fa-lightbulb',
                 'description' => 'Pensamentos sobre trabalho, aprendizado e a vida de quem vive rodeado de telas.',
+            ],
+            [
+                'slug'        => 'politica',
+                'name'        => 'Política',
+                'icon'        => 'fa-solid fa-landmark',
+                'description' => 'Análise política sem filiação: democracia, poder, instituições e o que isso significa no dia a dia.',
+            ],
+            [
+                'slug'        => 'esporte',
+                'name'        => 'Esporte',
+                'icon'        => 'fa-solid fa-futbol',
+                'description' => 'Futebol, competições e o papel do esporte na cultura — além do resultado do jogo.',
             ],
             [
                 'slug'        => 'geral',
