@@ -1,7 +1,7 @@
 # Samirhv Blog — Diretrizes de Segurança
 
-**Versão:** 1.0
-**Data:** 30/05/2026
+**Versão:** 1.1
+**Data:** 06/06/2026
 **Escopo:** Blog pessoal em Laravel — aplicação web pública sem área de login no front-end.
 
 ---
