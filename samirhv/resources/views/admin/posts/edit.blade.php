@@ -1,0 +1,26 @@
+@extends('admin.layouts.app')
+
+@section('title', 'Editar post')
+
+@section('content')
+    <div class="page-header">
+        <h1 class="page-title">Editar post</h1>
+        <a href="{{ route('admin.posts.index') }}" class="btn btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ route('admin.posts.update', $post) }}">
+                @csrf @method('PUT')
+                @include('admin.posts._form')
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection
