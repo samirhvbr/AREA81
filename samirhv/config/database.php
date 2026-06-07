@@ -74,7 +74,6 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'area81'),
@@ -84,22 +83,23 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'sslmode' => env('PG_SSLMODE', 'prefer'),
         ],
 
         // Conexão dedicada ao pgvector — armazena embeddings dos artigos de news
         'pgsql_vector' => [
             'driver' => 'pgsql',
-            'host' => env('PGVECTOR_HOST', '127.0.0.1'),
-            'port' => env('PGVECTOR_PORT', '5432'),
-            'database' => env('PGVECTOR_DB', 'news_vector'),
-            'username' => env('PGVECTOR_USER', 'postgres'),
-            'password' => env('PGVECTOR_PASSWORD', ''),
+            'host' => env('PG_HOST', '127.0.0.1'),
+            'port' => env('PG_PORT', '5432'),
+            'database' => env('PG_DATABASE', 'area81'),
+            'username' => env('PG_USERNAME', 'shv81'),
+            'password' => env('PG_PASSWORD', 'sam6272tsam6272t@2623'),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('PGVECTOR_SSLMODE', 'prefer'),
+	    //            'sslmode' => env('PGVECTOR_SSLMODE', 'prefer'),
+	   'sslmode'        => env('PG_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [
