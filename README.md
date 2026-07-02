@@ -1,99 +1,99 @@
 # AREA81 — Blog
 
-Blog pessoal de Samir HV, construído com Laravel e tema Canvas 7.
+Personal blog by Samir HV, built with Laravel and the Canvas 7 theme.
 
 ---
 
-> Documentação interna — não publicar. (Não vai para produção: ver lista de `--exclude` do deploy abaixo).
-> Não publicar mas ideal versionar.
-> Sempre faça os commits com uma boa descrição, o push é opcional, mas o commit organizado e documentado é obrigatório.
+> Internal documentation — do not publish. (Does not go to production: see the deploy `--exclude` list below).
+> Do not publish, but ideally version it.
+> Always write commits with a good description; the push is optional, but the organized, documented commit is mandatory.
 
-**Ver também:** [CLAUDE.md](CLAUDE.md) (convenções de código e guia para agentes) · [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) (segurança — revisar sempre que houver mudança de stack ou novo input de usuário)
+**See also:** [CLAUDE.md](CLAUDE.md) (code conventions and agent guide) · [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) (security — review whenever the stack changes or a new user input is added)
 
-## Versão (`version.md`)
+## Version (`version.md`)
 
-A versão do projeto fica em `version.md` na raiz. Formato `X.Y.Z`:
+The project version lives in `version.md` at the root. Format `X.Y.Z`:
 
-- **X** — versão estável final (alteração manual)
-- **Y** — mudança estrutural significativa (0–99)
-- **Z** — incremento por nova tela, nova tabela, mudança de layout ou feature → `Z+1` (0–999)
+- **X** — final stable version (manual change)
+- **Y** — significant structural change (0–99)
+- **Z** — increment for a new screen, new table, layout change or feature → `Z+1` (0–999)
 
 ---
 
 ## Stack
 
-| Camada        | Tecnologia                          |
+| Layer         | Technology                          |
 |---------------|-------------------------------------|
 | Backend       | PHP 8.4+ / Laravel                  |
 | Templates     | Blade                               |
 | Frontend      | Canvas 7 (HTML5 theme)              |
-| Banco de dados| MySQL / MariaDB                     |
+| Database      | MySQL / MariaDB                     |
 | Build         | Vite + npm                          |
 
-A aplicação Laravel fica em `samirhv/`. Assets do tema em `public/vendor/canvas/`.
+The Laravel application lives in `samirhv/`. Theme assets in `public/vendor/canvas/`.
 
 ---
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 AREA81/
-├── samirhv/                  # Aplicação Laravel
-│   ├── app/Http/Controllers/ # BlogController (posts, rotas)
+├── samirhv/                  # Laravel application
+│   ├── app/Http/Controllers/ # BlogController (posts, routes)
 │   ├── resources/views/      # Blade views (blog/, layouts/)
-│   ├── routes/web.php        # Rotas nomeadas
-│   └── public/vendor/canvas/ # Assets do tema Canvas 7
-├── docs/                     # Documentação e referências visuais
-├── tmp/                      # Referência visual local (não versiona)
-├── CLAUDE.md                 # Guia para agentes de IA
-├── SECURITY_GUIDELINES.md    # Diretrizes de segurança
-└── version.md                # Versão atual (formato MAJOR.MINOR.PATCH)
+│   ├── routes/web.php        # Named routes
+│   └── public/vendor/canvas/ # Canvas 7 theme assets
+├── docs/                     # Documentation and visual references
+├── tmp/                      # Local visual reference (not versioned)
+├── CLAUDE.md                 # Guide for AI agents
+├── SECURITY_GUIDELINES.md    # Security guidelines
+└── version.md                # Current version (MAJOR.MINOR.PATCH format)
 ```
 
 ---
 
-## Setup Local
+## Local Setup
 
 ```bash
-# 1. Entrar na pasta do Laravel
+# 1. Enter the Laravel folder
 cd samirhv
 
-# 2. Instalar dependências PHP
+# 2. Install PHP dependencies
 composer install
 
-# 3. Instalar dependências JS
+# 3. Install JS dependencies
 npm install
 
-# 4. Configurar ambiente
+# 4. Configure the environment
 cp .env.example .env
 php artisan key:generate
 
-# 5. Configurar banco (MySQL/MariaDB) no .env e rodar migrations
+# 5. Configure the database (MySQL/MariaDB) in .env and run migrations
 php artisan migrate
 
-# 6. Subir servidor
+# 6. Start the server
 php artisan serve          # http://localhost:8000
-npm run dev                # Vite HMR (opcional, dev)
+npm run dev                # Vite HMR (optional, dev)
 ```
 
 ---
 
-## Comandos Úteis
+## Useful Commands
 
-| Comando                         | Uso                                    |
+| Command                         | Use                                    |
 |---------------------------------|----------------------------------------|
-| `php artisan serve`             | Servidor local (http://localhost:8000) |
-| `php artisan route:list`        | Lista rotas registradas                |
-| `php artisan optimize:clear`    | Limpa todo cache (views, config, rota) |
-| `php artisan view:clear`        | Limpa cache de views Blade             |
-| `php -l <arquivo.php>`          | Valida sintaxe PHP                     |
-| `composer audit`                | Verifica vulnerabilidades              |
+| `php artisan serve`             | Local server (http://localhost:8000)   |
+| `php artisan route:list`        | List registered routes                 |
+| `php artisan optimize:clear`    | Clear all cache (views, config, routes)|
+| `php artisan view:clear`        | Clear Blade view cache                 |
+| `php -l <arquivo.php>`          | Validate PHP syntax                    |
+| `composer audit`                | Check for vulnerabilities              |
 
 ---
 
-## Adicionando Posts
+## Adding Posts
 
-Posts são definidos no array `allPosts()` de `BlogController`. Cada entrada:
+Posts are defined in the `allPosts()` array of `BlogController`. Each entry:
 
 ```php
 [
@@ -101,11 +101,11 @@ Posts são definidos no array `allPosts()` de `BlogController`. Cada entrada:
     'title'        => 'Título do post',
     'excerpt'      => 'Resumo curto exibido na listagem.',
     'content'      => '<p>HTML do conteúdo completo</p>',
-    'category'     => 'tecnologia',   // deve existir em categories()
+    'category'     => 'tecnologia',   // must exist in categories()
     'tags'         => ['php', 'web'],
     'date'         => '06 jun. 2026',
-    'reading_time' => 5,              // minutos estimados
-    'featured'     => false,          // destaque na home
+    'reading_time' => 5,              // estimated minutes
+    'featured'     => false,          // featured on home
 ]
 ```
 
@@ -114,24 +114,24 @@ Posts são definidos no array `allPosts()` de `BlogController`. Cada entrada:
 ## Deploy
 
 ```bash
-# No servidor, após pull
+# On the server, after pull
 composer install --no-dev --optimize-autoloader
 npm run build
 php artisan optimize
 php artisan migrate --force
 
-# Permissões
+# Permissions
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 ```
 
-Ver [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) para checklist completo de produção.
+See [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) for the full production checklist.
 
 ---
 
-## Versionamento
+## Versioning
 
-O arquivo `version.md` contém a versão atual (`MAJOR.MINOR.PATCH`).  
-Commits seguem o formato: `0.1.0 - descrição da mudança`.
+The `version.md` file contains the current version (`MAJOR.MINOR.PATCH`).  
+Commits follow the format: `0.1.0 - change description`.
 
-Incrementar **Z** para ajustes de layout e features novas dentro do ciclo atual.
+Increment **Z** for layout adjustments and new features within the current cycle.
