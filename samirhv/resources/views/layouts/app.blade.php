@@ -23,6 +23,8 @@
 
     <title>@yield('title', 'Samirhv') — Blog</title>
 
+    {{-- Matomo Analytics (self-hosted) — só renderiza com MATOMO_* configurado. --}}
+    @include('partials.matomo')
 </head>
 
 <body class="stretched dark">
