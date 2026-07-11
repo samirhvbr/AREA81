@@ -1,14 +1,14 @@
 #!/bin/bash
-# versão 2.0 - 2026-07-11
+# versão 2.1 - 2026-07-11
 #
 # Deploy de produção do area81.com.br em /srv/www/area81.com.br.
 # Portado do deploy do samirhv.com.br (v2.0), que herda a INTRANET (v3.4) —
 # mesma particularidade de estrutura DESTE repo:
 #
 #   PARTICULARIDADE: o app Laravel NÃO está na raiz do repositório — ele vive
-#   na subpasta samirhv/. Então:
+#   na subpasta area81/. Então:
 #     - git roda na RAIZ do repo  ->  $DIR  = /srv/www/area81.com.br
-#     - artisan/composer/npm/.env ->  $APP  = $DIR/samirhv
+#     - artisan/composer/npm/.env ->  $APP  = $DIR/area81
 #
 #   (O deploy antigo rodava artisan/composer/npm na RAIZ, onde não há artisan —
 #    por isso quebrava. Este corrige apontando pra $APP.)
@@ -25,6 +25,8 @@
 #   - npm install  (este repo NÃO tem package-lock.json -> npm ci não serve).
 #   - Backup via mysqldump genérico (não há comando custom mariadb:backup).
 #   - Usa o @vite padrão do Laravel (build em public/build).
+#   - Robusto p/ 1º deploy: pré-flight de .env, ajuste de permissões de
+#     storage/, e 'artisan down' só quando o vendor/ já existe.
 #
 # MODELO DE OWNERSHIP:
 #   - git/composer/npm rodam como o DONO do tree (b3sys) — todos tocam
@@ -47,7 +49,7 @@ set -euo pipefail
 
 # ── Config ───────────────────────────────────────────────────────────────────
 DIR="/srv/www/area81.com.br"        # raiz do repositório git (git pull aqui)
-APP="$DIR/samirhv"                  # app Laravel (artisan/composer/npm/.env)
+APP="$DIR/area81"                   # app Laravel (artisan/composer/npm/.env)
 BRANCH="${DEPLOY_BRANCH:-master}"
 LOCK="/run/area81-deploy.lock"      # /run (tmpfs, root) — não /tmp
 
@@ -104,8 +106,8 @@ fail() { log "❌ $*"; cleanup_on_failure; exit 1; }
 backup_db() {
     local conn db user pass host port dumpdir stamp file cnf
     conn=$(get_env DB_CONNECTION)
-    if [ "${conn:-mysql}" != "mysql" ]; then
-        log "⚠️  DB_CONNECTION=$conn — backup automático cobre só mysql; pulando."
+    if [ "${conn:-mysql}" != "mysql" ] && [ "$conn" != "mariadb" ]; then
+        log "⚠️  DB_CONNECTION=$conn — backup automático cobre só mysql/mariadb; pulando."
         return 0
     fi
     db=$(get_env DB_DATABASE); user=$(get_env DB_USERNAME); pass=$(get_env DB_PASSWORD)
@@ -157,6 +159,10 @@ log "==> Repo: $DIR  |  App: $APP  |  Dono: $OWNER  |  Branch: $BRANCH"
 TG_BOT=$(get_env DEPLOY_TELEGRAM_BOT_TOKEN)
 TG_CHAT=$(get_env DEPLOY_TELEGRAM_CHAT_ID)
 
+# ── Pré-flight de ambiente (aborta cedo, antes de tocar no repo/schema) ───────
+[ -f "$APP/.env" ] || fail "$APP/.env não existe — copie de $APP/env.production e configure APP_KEY + DB_* antes do deploy."
+[ -n "$(get_env APP_KEY)" ] || fail "APP_KEY vazio em $APP/.env — configure (ver env.production) ou rode 'php artisan key:generate'."
+
 # ── 1. Fetch e checagem de mudanças ──────────────────────────────────────────
 log "==> Buscando alterações em origin/$BRANCH..."
 asowner git fetch --quiet origin "$BRANCH" || { log "git fetch falhou"; exit 1; }
@@ -185,16 +191,31 @@ trap cleanup_on_failure ERR
 # A partir daqui tudo acontece dentro do app Laravel.
 cd "$APP" || fail "$APP não existe"
 
-# ── 2. Modo manutenção ───────────────────────────────────────────────────────
-log "==> Ativando modo de manutenção..."
-www php artisan down --refresh=15
+# ── Permissões de runtime (root; idempotente) ────────────────────────────────
+# www-data precisa escrever em storage/ e bootstrap/cache/. Sem isto, o artisan
+# (down/migrate/caches, que rodam como www-data) falha com "Permission denied" —
+# em especial no 1º deploy, logo após um checkout limpo (tudo é do OWNER).
+log "==> Garantindo storage/ e bootstrap/cache/ graváveis por www-data..."
+chown -R "$OWNER":www-data storage bootstrap/cache 2>/dev/null || true
+chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
+find storage bootstrap/cache -type d -exec chmod g+s {} \; 2>/dev/null || true
+
+# ── 2. Modo manutenção (só se o app já consegue bootar) ──────────────────────
+# No 1º deploy ainda não há vendor/, então 'artisan down' não roda (o app nem
+# inicia sem o autoload). Nesse caso o site ainda não está no ar — seguimos.
+if [ -f vendor/autoload.php ]; then
+    log "==> Ativando modo de manutenção..."
+    www php artisan down --refresh=15
+else
+    log "⚠️  vendor/ ausente (deploy inicial) — pulando modo de manutenção."
+fi
 
 # ── 3. Backup do banco (antes de mexer em schema) ────────────────────────────
 log "==> Backup do banco via mysqldump..."
 backup_db
 
 # ── 4. Dependências PHP (só se composer.lock mudou, ou vendor ausente) ────────
-if [ ! -d vendor ] || grep -q '^samirhv/composer\.lock$' <<<"$CHANGED"; then
+if [ ! -d vendor ] || grep -q '^area81/composer\.lock$' <<<"$CHANGED"; then
     log "==> Instalando dependências PHP (como $OWNER)..."
     heal_owner vendor
     asowner env COMPOSER_ALLOW_SUPERUSER=1 composer install \
@@ -208,7 +229,7 @@ fi
 
 # ── 5. Frontend (npm install + build) — se front mudou, ou build ausente ──────
 if [ ! -d node_modules ] || [ ! -d public/build ] \
-        || grep -qE '^samirhv/(package\.json|vite\.config\.js|resources/)' <<<"$CHANGED"; then
+        || grep -qE '^area81/(package\.json|vite\.config\.js|resources/)' <<<"$CHANGED"; then
     log "==> Frontend: npm install + build (como $OWNER)..."
     heal_owner node_modules
     asowner npm install --no-audit --no-fund

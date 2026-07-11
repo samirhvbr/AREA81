@@ -4,7 +4,7 @@ Personal blog by Samir HV, built with Laravel and the Canvas 7 theme.
 
 ---
 
-> Internal documentation — do not publish. (Not web-accessible in production: the docroot is `samirhv/public/`, so `docs/`, `tmp/` and this README at the repo root are never served — even though they live in the repo.)
+> Internal documentation — do not publish. (Not web-accessible in production: the docroot is `area81/public/`, so `docs/`, `tmp/` and this README at the repo root are never served — even though they live in the repo.)
 > Do not publish, but ideally version it.
 > Always write commits with a good description; the push is optional, but the organized, documented commit is mandatory.
 
@@ -30,7 +30,7 @@ The project version lives in `version.md` at the root. Format `X.Y.Z`:
 | Database      | MySQL / MariaDB                     |
 | Build         | Vite + npm                          |
 
-The Laravel application lives in `samirhv/`. Theme assets in `public/vendor/canvas/`.
+The Laravel application lives in `area81/`. Theme assets in `public/vendor/canvas/`.
 
 ---
 
@@ -38,7 +38,7 @@ The Laravel application lives in `samirhv/`. Theme assets in `public/vendor/canv
 
 ```
 AREA81/
-├── samirhv/                  # Laravel application
+├── area81/                  # Laravel application
 │   ├── app/Http/Controllers/ # BlogController (posts, routes)
 │   ├── resources/views/      # Blade views (blog/, layouts/)
 │   ├── routes/web.php        # Named routes
@@ -56,7 +56,7 @@ AREA81/
 
 ```bash
 # 1. Enter the Laravel folder
-cd samirhv
+cd area81
 
 # 2. Install PHP dependencies
 composer install
@@ -114,7 +114,7 @@ Posts are defined in the `allPosts()` array of `BlogController`. Each entry:
 ## Deploy
 
 Production runs on the server at `/srv/www/area81.com.br` (the git root; the
-Laravel app is the `samirhv/` subfolder). Deploy is a single idempotent script,
+Laravel app is the `area81/` subfolder). Deploy is a single idempotent script,
 run as **root** — it fetches `origin/master`, fast-forwards, and rebuilds only
 what changed:
 
@@ -126,7 +126,7 @@ Steps: maintenance mode → MySQL backup (`mysqldump`) → `composer install` an
 `npm install && npm run build` (only when their lockfiles/sources changed) →
 `migrate --force` (auto-rollback on failure) → rebuild caches → maintenance off.
 `git`/`composer`/`npm` run as the tree owner (`b3sys`); runtime `artisan` runs as
-`www-data`. Optional Telegram alerts via `DEPLOY_TELEGRAM_*` in `samirhv/.env`.
+`www-data`. Optional Telegram alerts via `DEPLOY_TELEGRAM_*` in `area81/.env`.
 
 See [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) for the full production checklist.
 

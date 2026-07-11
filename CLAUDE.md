@@ -27,7 +27,7 @@ Trabalhar sobre uma base desatualizada gera conflitos. Puxe primeiro, sempre. Pa
 
 ## Stack
 
-- **Framework:** Laravel (PHP 8.4+), pasta `samirhv/`
+- **Framework:** Laravel (PHP 8.4+), pasta `area81/`
 - **Template engine:** Blade
 - **Frontend:** Canvas 7 (tema HTML5) — assets em `public/vendor/canvas/`
 - **Banco de Dados:** MySQL / MariaDB — nunca usar SQLite em nenhum contexto

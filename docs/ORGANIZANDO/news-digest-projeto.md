@@ -156,7 +156,7 @@ pondera forte.
   - **Alternativa:** **MariaDB 11.8 LTS** tem busca vetorial nativa (tipo `VECTOR`, HNSW,
     `VEC_DISTANCE_COSINE()`). Consolida tudo num banco só, mas exige reescrever a parte
     vetorial na sintaxe do MariaDB e estar no 11.8+.
-- **Topologia** — módulo dentro do blog (samirhv) **ou** serviço/app separado?
+- **Topologia** — módulo dentro do blog (area81) **ou** serviço/app separado?
   *(define como as conexões de banco são ligadas)*
 - **Fontes e keywords** — lista concreta de feeds RSS e palavras-chave a definir.
 - **Frequência exata** — 1x/dia (padrão) ou mais vezes.

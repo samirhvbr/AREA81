@@ -30,7 +30,7 @@ A versão do projeto fica em `version.md` na raiz. Formato `X.Y.Z`:
 | Banco de dados| MySQL / MariaDB                     |
 | Build         | Vite + npm                          |
 
-A aplicação Laravel fica em `samirhv/`. Assets do tema em `public/vendor/canvas/`.
+A aplicação Laravel fica em `area81/`. Assets do tema em `public/vendor/canvas/`.
 
 ---
 
@@ -38,7 +38,7 @@ A aplicação Laravel fica em `samirhv/`. Assets do tema em `public/vendor/canva
 
 ```
 AREA81/
-├── samirhv/                  # Aplicação Laravel
+├── area81/                  # Aplicação Laravel
 │   ├── app/Http/Controllers/ # BlogController (posts, rotas)
 │   ├── resources/views/      # Blade views (blog/, layouts/)
 │   ├── routes/web.php        # Rotas nomeadas
@@ -56,7 +56,7 @@ AREA81/
 
 ```bash
 # 1. Entrar na pasta do Laravel
-cd samirhv
+cd area81
 
 # 2. Instalar dependências PHP
 composer install
