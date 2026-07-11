@@ -1,5 +1,5 @@
 #!/bin/bash
-# versão 2.1 - 2026-07-11
+# versão 2.2 - 2026-07-11
 #
 # Deploy de produção do area81.com.br em /srv/www/area81.com.br.
 # Portado do deploy do samirhv.com.br (v2.0), que herda a INTRANET (v3.4) —
@@ -41,6 +41,14 @@
 # Requisito: rode como ROOT (`sudo bash deploy.sh`). Root desce p/ b3sys e
 # www-data via sudo sem pedir senha.
 #
+# MODOS:
+#   sudo bash deploy.sh        - incremental: sai cedo se não há commit novo.
+#   sudo bash deploy.sh full   - bootstrap/re-setup COMPLETO: não sai no "nada
+#                                novo", força composer+npm+migrate+caches e, se
+#                                APP_KEY estiver vazio, gera via key:generate.
+#                                Use no 1º deploy (repo já no HEAD do remoto) ou
+#                                para reconstruir tudo do zero.
+#
 # Variáveis OPCIONAIS no $APP/.env:
 #   DEPLOY_TELEGRAM_BOT_TOKEN / DEPLOY_TELEGRAM_CHAT_ID - avisos de deploy.
 #   DB_* (DB_DATABASE/DB_USERNAME/DB_PASSWORD/...)       - usadas no backup.
@@ -52,6 +60,10 @@ DIR="/srv/www/area81.com.br"        # raiz do repositório git (git pull aqui)
 APP="$DIR/area81"                   # app Laravel (artisan/composer/npm/.env)
 BRANCH="${DEPLOY_BRANCH:-master}"
 LOCK="/run/area81-deploy.lock"      # /run (tmpfs, root) — não /tmp
+
+# Modo de execução: "full" força re-setup completo (ver cabeçalho → MODOS).
+FULL=0
+[ "${1:-}" = "full" ] && FULL=1
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 log() { printf '[%(%H:%M:%S)T] %s\n' -1 "$*"; }
@@ -136,6 +148,10 @@ backup_db() {
         log "  ✓ backup OK"
     else
         rm -f "$cnf"
+        if [ "${FULL:-0}" = 1 ]; then
+            log "⚠️  mysqldump falhou (modo full / banco novo ou vazio?) — seguindo sem backup."
+            return 0
+        fi
         fail "mysqldump falhou — aborta antes de migrate"
     fi
 }
@@ -161,7 +177,14 @@ TG_CHAT=$(get_env DEPLOY_TELEGRAM_CHAT_ID)
 
 # ── Pré-flight de ambiente (aborta cedo, antes de tocar no repo/schema) ───────
 [ -f "$APP/.env" ] || fail "$APP/.env não existe — copie de $APP/env.production e configure APP_KEY + DB_* antes do deploy."
-[ -n "$(get_env APP_KEY)" ] || fail "APP_KEY vazio em $APP/.env — configure (ver env.production) ou rode 'php artisan key:generate'."
+if [ -z "$(get_env APP_KEY)" ]; then
+    if [ "$FULL" = 1 ]; then
+        GEN_KEY=1
+        log "⚠️  APP_KEY vazio — modo full: será gerado (key:generate) logo após o composer install."
+    else
+        fail "APP_KEY vazio em $APP/.env — configure (ver env.production), rode 'php artisan key:generate', ou use 'sudo bash deploy.sh full' (gera automaticamente)."
+    fi
+fi
 
 # ── 1. Fetch e checagem de mudanças ──────────────────────────────────────────
 log "==> Buscando alterações em origin/$BRANCH..."
@@ -171,19 +194,26 @@ LOCAL=$(asowner git rev-parse HEAD)
 REMOTE=$(asowner git rev-parse "origin/$BRANCH")
 
 if [ "$LOCAL" = "$REMOTE" ]; then
-    log "✓ Nada novo em origin/$BRANCH. Saindo."
-    exit 0
+    if [ "$FULL" = 1 ]; then
+        log "✓ Nada novo em origin/$BRANCH — mas modo FULL: seguindo com re-setup completo."
+    else
+        log "✓ Nada novo em origin/$BRANCH. Saindo. (use 'sudo bash deploy.sh full' para forçar)"
+        exit 0
+    fi
 fi
 
 if ! asowner git diff --quiet || ! asowner git diff --cached --quiet; then
     log "⚠️  Working tree tem mudanças locais não commitadas."
 fi
 
-log "==> Trazendo $(asowner git rev-parse --short "$LOCAL") → $(asowner git rev-parse --short "$REMOTE")..."
-asowner git merge --ff-only "origin/$BRANCH" \
-    || { log "❌ fast-forward falhou (working tree divergiu? resolva manual e rode de novo)"; exit 1; }
-
-CHANGED=$(asowner git diff --name-only "$LOCAL" "$REMOTE")
+if [ "$LOCAL" != "$REMOTE" ]; then
+    log "==> Trazendo $(asowner git rev-parse --short "$LOCAL") → $(asowner git rev-parse --short "$REMOTE")..."
+    asowner git merge --ff-only "origin/$BRANCH" \
+        || { log "❌ fast-forward falhou (working tree divergiu? resolva manual e rode de novo)"; exit 1; }
+    CHANGED=$(asowner git diff --name-only "$LOCAL" "$REMOTE")
+else
+    CHANGED=""   # modo full sem commits novos: nada a comparar
+fi
 
 # Daqui pra frente, qualquer falha dispara o cleanup automático.
 trap cleanup_on_failure ERR
@@ -203,11 +233,11 @@ find storage bootstrap/cache -type d -exec chmod g+s {} \; 2>/dev/null || true
 # ── 2. Modo manutenção (só se o app já consegue bootar) ──────────────────────
 # No 1º deploy ainda não há vendor/, então 'artisan down' não roda (o app nem
 # inicia sem o autoload). Nesse caso o site ainda não está no ar — seguimos.
-if [ -f vendor/autoload.php ]; then
+if [ -f vendor/autoload.php ] && [ -n "$(get_env APP_KEY)" ]; then
     log "==> Ativando modo de manutenção..."
     www php artisan down --refresh=15
 else
-    log "⚠️  vendor/ ausente (deploy inicial) — pulando modo de manutenção."
+    log "⚠️  vendor/ ausente ou APP_KEY vazio (deploy inicial) — pulando modo de manutenção."
 fi
 
 # ── 3. Backup do banco (antes de mexer em schema) ────────────────────────────
@@ -215,7 +245,7 @@ log "==> Backup do banco via mysqldump..."
 backup_db
 
 # ── 4. Dependências PHP (só se composer.lock mudou, ou vendor ausente) ────────
-if [ ! -d vendor ] || grep -q '^area81/composer\.lock$' <<<"$CHANGED"; then
+if [ "$FULL" = 1 ] || [ ! -d vendor ] || grep -q '^area81/composer\.lock$' <<<"$CHANGED"; then
     log "==> Instalando dependências PHP (como $OWNER)..."
     heal_owner vendor
     asowner env COMPOSER_ALLOW_SUPERUSER=1 composer install \
@@ -227,8 +257,15 @@ else
     log "✓ composer.lock inalterado — pulando composer install."
 fi
 
+# APP_KEY vazio + modo full: gera agora (vendor já existe → o artisan boota).
+# Roda como OWNER porque escreve no .env (arquivo do dono do tree).
+if [ "${GEN_KEY:-0}" = 1 ]; then
+    log "==> Gerando APP_KEY (estava vazio)..."
+    asowner php artisan key:generate --force || fail "key:generate falhou"
+fi
+
 # ── 5. Frontend (npm install + build) — se front mudou, ou build ausente ──────
-if [ ! -d node_modules ] || [ ! -d public/build ] \
+if [ "$FULL" = 1 ] || [ ! -d node_modules ] || [ ! -d public/build ] \
         || grep -qE '^area81/(package\.json|vite\.config\.js|resources/)' <<<"$CHANGED"; then
     log "==> Frontend: npm install + build (como $OWNER)..."
     heal_owner node_modules
