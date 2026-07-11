@@ -10,12 +10,13 @@
         </a>
     </div>
 
-    <div class="card">
+    <div class="card" style="border-radius: var(--radius-lg);">
         <div class="card-body">
             <form method="POST" action="{{ route('admin.posts.store') }}">
                 @csrf
                 @include('admin.posts._form', ['post' => null, 'postTags' => []])
-                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                <div style="display:flex; justify-content:flex-end; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <a href="{{ route('admin.posts.index') }}" class="btn btn-ghost">Cancelar</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fa-solid fa-floppy-disk"></i> Salvar post
                     </button>
