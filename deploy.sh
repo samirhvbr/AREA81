@@ -3,7 +3,7 @@
 
 set -e  # para imediatamente se qualquer comando falhar
 
-DIR="/srv/www/area81"
+DIR="/srv/www/area81.com.br"
 APP="$DIR/"
 
 echo "==> Iniciando deploy..."
