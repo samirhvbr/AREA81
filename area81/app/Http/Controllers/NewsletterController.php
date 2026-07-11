@@ -13,6 +13,14 @@ class NewsletterController extends Controller
     public function __construct(private readonly NewsletterService $newsletter) {}
 
     /**
+     * Página de inscrição na newsletter (mostra o formulário).
+     */
+    public function index(): View
+    {
+        return view('newsletter.index');
+    }
+
+    /**
      * Recebe o cadastro (nome + e-mail) e dispara o e-mail de confirmação.
      */
     public function subscribe(Request $request): RedirectResponse

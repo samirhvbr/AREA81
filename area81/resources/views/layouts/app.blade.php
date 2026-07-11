@@ -127,7 +127,7 @@
                             <div style="background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.12); border-radius: var(--cp-radius-md); padding: 20px;">
                                 <p style="font-family: var(--cp-font-mono); font-size: 0.68rem; color: var(--cp-accent); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 8px;">// NEWSLETTER</p>
                                 <p style="font-size: 0.82rem; color: var(--cp-text-secondary); line-height: 1.55; margin-bottom: 12px;">Receba novos posts por email.</p>
-                                <a href="{{ route('newsletter.status') }}" class="d-inline-flex align-items-center gap-2" style="font-family: var(--cp-font-mono); font-size: 0.78rem; color: var(--cp-accent); text-decoration: none; font-weight: 500;">
+                                <a href="{{ route('newsletter.index') }}" class="d-inline-flex align-items-center gap-2" style="font-family: var(--cp-font-mono); font-size: 0.78rem; color: var(--cp-accent); text-decoration: none; font-weight: 500;">
                                     Assinar <i class="bi-arrow-right" style="font-size: 0.7rem;"></i>
                                 </a>
                             </div>

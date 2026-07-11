@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin;
 Route::get('/', [BlogController::class, 'home'])->name('home');
 
 Route::prefix('newsletter')->name('newsletter.')->group(function () {
+    Route::get('/', [NewsletterController::class, 'index'])->name('index');
     Route::post('/subscribe', [NewsletterController::class, 'subscribe'])
         ->name('subscribe')
         ->middleware('throttle:5,1');
