@@ -4,7 +4,7 @@ Personal blog by Samir HV, built with Laravel and the Canvas 7 theme.
 
 ---
 
-> Internal documentation — do not publish. (Does not go to production: see the deploy `--exclude` list below).
+> Internal documentation — do not publish. (Not web-accessible in production: the docroot is `samirhv/public/`, so `docs/`, `tmp/` and this README at the repo root are never served — even though they live in the repo.)
 > Do not publish, but ideally version it.
 > Always write commits with a good description; the push is optional, but the organized, documented commit is mandatory.
 
@@ -113,17 +113,20 @@ Posts are defined in the `allPosts()` array of `BlogController`. Each entry:
 
 ## Deploy
 
-```bash
-# On the server, after pull
-composer install --no-dev --optimize-autoloader
-npm run build
-php artisan optimize
-php artisan migrate --force
+Production runs on the server at `/srv/www/area81.com.br` (the git root; the
+Laravel app is the `samirhv/` subfolder). Deploy is a single idempotent script,
+run as **root** — it fetches `origin/master`, fast-forwards, and rebuilds only
+what changed:
 
-# Permissions
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+```bash
+sudo bash /srv/www/area81.com.br/deploy.sh
 ```
+
+Steps: maintenance mode → MySQL backup (`mysqldump`) → `composer install` and
+`npm install && npm run build` (only when their lockfiles/sources changed) →
+`migrate --force` (auto-rollback on failure) → rebuild caches → maintenance off.
+`git`/`composer`/`npm` run as the tree owner (`b3sys`); runtime `artisan` runs as
+`www-data`. Optional Telegram alerts via `DEPLOY_TELEGRAM_*` in `samirhv/.env`.
 
 See [SECURITY_GUIDELINES.md](SECURITY_GUIDELINES.md) for the full production checklist.
 
