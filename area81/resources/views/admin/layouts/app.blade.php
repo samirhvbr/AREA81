@@ -237,6 +237,8 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
     </style>
     @stack('styles')
+    {{-- Matomo Analytics (self-hosted) — só renderiza com MATOMO_* configurado. --}}
+    @include('partials.matomo')
 </head>
 <body>
 <div style="display:flex; min-height:100vh;">

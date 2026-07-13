@@ -91,6 +91,8 @@
             box-shadow: 0 6px 24px rgba(99,102,241,0.35);
         }
     </style>
+    {{-- Matomo Analytics (self-hosted) — só renderiza com MATOMO_* configurado. --}}
+    @include('partials.matomo')
 </head>
 <body>
     <div class="login-card">
