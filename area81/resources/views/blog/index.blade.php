@@ -29,9 +29,9 @@
 
             <!-- Filtro de categorias -->
             <div class="d-flex flex-wrap gap-2" style="padding-top: 8px;">
-                <a href="{{ route('blog.index') }}" class="button button-rounded button-small {{ !$currentCategory ? '' : 'button-border' }}" style="{{ !$currentCategory ? 'background:var(--cp-accent);border-color:var(--cp-accent);color:#fff;' : 'border-color:rgba(99,102,241,0.3);color:var(--cp-text-muted);' } font-family:var(--cp-font-mono);font-size:0.74rem;transition:all 0.2s;">Todos</a>
+                <a href="{{ route('blog.index') }}" class="button button-rounded button-small {{ !$currentCategory ? '' : 'button-border' }}" style="{{ !$currentCategory ? 'background:var(--cp-accent);border-color:var(--cp-accent);color:#fff;' : 'border-color:rgba(99,102,241,0.3);color:var(--cp-text-muted);' }} font-family:var(--cp-font-mono);font-size:0.74rem;transition:all 0.2s;">Todos</a>
                 @foreach($categories as $cat)
-                <a href="{{ route('blog.index') }}?categoria={{ $cat['slug'] }}" class="button button-rounded button-small {{ $currentCategory === $cat['slug'] ? '' : 'button-border' }}" style="{{ $currentCategory === $cat['slug'] ? 'background:var(--cp-accent);border-color:var(--cp-accent);color:#fff;' : 'border-color:rgba(99,102,241,0.3);color:var(--cp-text-muted);' } font-family:var(--cp-font-mono);font-size:0.74rem;transition:all 0.2s;">{{ $cat['name'] }}</a>
+                <a href="{{ route('blog.index') }}?categoria={{ $cat['slug'] }}" class="button button-rounded button-small {{ $currentCategory === $cat['slug'] ? '' : 'button-border' }}" style="{{ $currentCategory === $cat['slug'] ? 'background:var(--cp-accent);border-color:var(--cp-accent);color:#fff;' : 'border-color:rgba(99,102,241,0.3);color:var(--cp-text-muted);' }} font-family:var(--cp-font-mono);font-size:0.74rem;transition:all 0.2s;">{{ $cat['name'] }}</a>
                 @endforeach
             </div>
         </div>
