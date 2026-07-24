@@ -35,6 +35,15 @@ return [
         ],
     ],
 
+    // Cloudflare Turnstile — anti-bot opt-in do formulário público de newsletter
+    // (/newsletter/subscribe). Chaves criadas em dash.cloudflare.com -> Turnstile
+    // (widget "Managed"). Vazias = camada desligada (honeypot/tempo/cooldown/teto
+    // diário seguem ativos). Verificação server-side no NewsletterAbuseGuard.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
     // Matomo Analytics (self-hosted em a.blue3.cloud). O snippet
     // (resources/views/partials/matomo.blade.php) só é injetado no <head> quando
     // 'enabled' é true E 'site_id' está definido. site_id 10 = AREA81 blog.
